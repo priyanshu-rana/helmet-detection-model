@@ -1,0 +1,9 @@
+path: /home/kali/Documents/Projects/helmet-detection-system/dataset # Root path
+train: images # Training images (relative to 'path')
+val: images # Validation images (same as train for testing, but split your data properly later)
+test: # Test images (optional)
+
+# Class names
+names:
+  0: With Helmet
+  1: Without Helmet # Update if you have more classes

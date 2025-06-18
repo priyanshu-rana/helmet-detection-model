@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environments
+myenv/
+
+# Model weights and outputs
+*.pt
+runs/
+
+# Dataset (optional, if large; keep configs, remove images/labels/annotations for now)
+dataset/images/
+dataset/labels/
+dataset/annotations/
+dataset/labels.cache
+
+# OS files
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/ 
