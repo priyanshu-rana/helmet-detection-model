@@ -4,7 +4,7 @@ import numpy as np
 
 def main():
     # Load your trained model
-    model = YOLO("runs/detect/train2/weights/best.pt")
+    model = YOLO("runs/detect/train/weights/best.pt")
     
     # Open webcam (0 is usually the default camera)
     cap = cv2.VideoCapture(0)

@@ -1,118 +1,150 @@
 # Helmet Detection System
 
-Welcome! This project helps you detect helmets in images and live video using YOLOv8. Whether you're a beginner or just want a quick start, you're in the right place.
+Detect helmets in images and video using YOLOv8. This project is beginner-friendly and quick to set up.
 
 ---
 
 ## 📦 Requirements
 
-Install the required Python packages:
 ```bash
 pip install ultralytics opencv-python numpy
 ```
 
 ---
 
-## 🚦 What Can You Do Here?
-- Train a helmet detector on your own images
-- Convert XML annotations to YOLO format (so your model understands them)
-- Run live helmet detection from your webcam
+## 🚀 Quick Start
+
+1. **Clone this repo and set up your environment:**
+   ```bash
+   git clone <your-repo-url>
+   cd helmet-detection-system
+   python -m venv myenv
+   # On Windows:
+   myenv\Scripts\activate
+   # On Linux/Mac:
+   source myenv/bin/activate
+   pip install ultralytics opencv-python numpy
+   ```
+2. **Download and prepare your dataset:**
+   - See [Kaggle Helmet Detection Dataset](https://www.kaggle.com/datasets/andrewmvd/helmet-detection)
+   - Place images in `dataset/images/`
+   - If you have XML annotations, place them in `dataset/annotations/` and run:
+     ```bash
+     python xml_to_yolo.py
+     ```
+   - YOLO TXT labels should be in `dataset/labels/`
+   - Update `dataset/helmet-detection.yaml` if you change folder or class names.
+3. **Train your model:**
+   ```bash
+   python train.py
+   ```
+4. **Run live detection (webcam):**
+   ```bash
+   python live_detection.py
+   ```
 
 ---
 
-## 🗂️ What's Inside?
+## 🗂️ Project Structure
+
 ```
 helmet-detection-system/
 ├── dataset/
 │   ├── helmet-detection.yaml   # Dataset config
+│   ├── labels/                # YOLO label files
+│   ├── images/                # Image files
+│   ├── annotations/           # (Optional) XML annotation files
 ├── train.py                   # Training script
 ├── xml_to_yolo.py             # Converts XML to YOLO labels
 ├── live_detection.py          # Live webcam detection
-├── .gitignore                 
-├── README.md                 
+├── fix_labels.py              # Cleans corrupt YOLO label files
+├── README.md
 ```
 
 ---
 
-## 🚀 Quick Start
+## ⚠️ Troubleshooting & FAQ
 
-1. **Clone this repo:**
-   ```bash
-   git clone <your-repo-url>
-   cd helmet-detection-system
-   ```
-2. **Set up your Python environment:**
-   ```bash
-   python -m venv myenv
-   source myenv/bin/activate  # On Windows: myenv\Scripts\activate
-   pip install ultralytics opencv-python numpy
-   ```
+- **Corrupt Label Warnings:**
+  If you see warnings about "corrupt image/label" during training, run:
 
----
+  ```bash
+  python fix_labels.py
+  ```
 
-## 📥 Add Your Dataset (Kaggle Reference)
+  This will remove or fix label files with out-of-bounds or non-normalized coordinates.
 
-You can use **any helmet detection dataset** that fits the YOLO format, but for convenience, I recommend the [Helmet Detection dataset from Kaggle](https://www.kaggle.com/datasets/andrewmvd/helmet-detection). If you want to use this dataset, here's how to get set up:
+- **Windows Multiprocessing Error:**
+  If you get a multiprocessing error, make sure your `train.py` code is inside:
 
-1. **Download the dataset from Kaggle and unzip it.**
-2. **Organize your files like this:**
-   - Images: `dataset/images/`
-   - XML annotations: `dataset/annotations/` (if you have them)
-   - YOLO TXT labels: `dataset/labels/` (if you have them, or after conversion)
-3. **If you have XMLs, convert them to YOLO TXT:**
-   ```bash
-   python xml_to_yolo.py
-   ```
-   This will create `.txt` label files in `dataset/labels/`.
-4. **If you change folder or class names, update `dataset/helmet-detection.yaml`.**
+  ```python
+  if __name__ == "__main__":
+      main()
+  ```
 
-> Need more info? Check the [Kaggle dataset page](https://www.kaggle.com/datasets/andrewmvd/helmet-detection).
+  and try lowering `workers` to 2 or 0 in `train.py`.
 
----
+- **GPU Monitoring:**
+  Use `nvidia-smi` in a separate terminal to check if your GPU is being used during training. Task Manager may not show correct GPU utilization for deep learning workloads.
 
-## 🛠️ Why Do I Need `xml_to_yolo.py`?
+- **Model Weights:**
+  After training, your best model weights will be saved in `runs/train/helmet_detection/weights/best.pt`.  
+  If you move or rename this file, update the path in `live_detection.py`.
 
-- YOLOv8 needs labels in a special TXT format.
-- Many datasets (like the one from Kaggle) use XML files for annotations.
-- `xml_to_yolo.py` converts those XMLs into the format YOLO understands. Run it once, and you're ready to train!
-
----
-
-## 🏁 Typical Workflow
-
-```bash
-# 1. Download and organize your dataset
-# 2. Convert XML to YOLO TXT (if needed)
-python xml_to_yolo.py
-
-# 3. Train your model
-python train.py
-
-# 4. Try live detection
-python live_detection.py
-```
-
----
-
-## ⚠️ Important Notes
-
-- **Model Weights:**  
-  After training, my best model weights will be saved in `runs/detect/train2/weights/best.pt`.  
-  If you move or rename this file, update the path in `live_detection.py` accordingly.
-
-- **Dataset Config:**  
+- **Dataset Config:**
   If you change folder names or add more classes, update `dataset/helmet-detection.yaml` to match your setup.
 
 ---
 
-## 📝 Notes
-- This repo skips big files (datasets, weights, outputs) to keep things fast and clean.
-- After cloning, just add your dataset and weights as described above.
-- Works on Windows or Ubuntu. For GPU speed, install NVIDIA drivers and CUDA for your OS.
+## ⚙️ Recommended `workers` and `batch` Settings
+
+| Device Type                  | CPU Cores | RAM     | GPU (VRAM) | Recommended `workers` | Recommended `batch` |
+| ---------------------------- | --------- | ------- | ---------- | --------------------- | ------------------- |
+| Low-end Laptop               | 2-4       | <8 GB   | None/2GB   | 0                     | 4                   |
+| Mid-range Laptop/Desktop     | 4-8       | 8-16 GB | 2-4 GB     | 2                     | 8                   |
+| High-end Desktop/Workstation | 8+        | 16+ GB  | 6+ GB      | 4-8                   | 16-32               |
+
+**Notes:**
+
+- On **Windows**, if you get a multiprocessing error, lower `workers` to 0 or 2.
+- If you run out of RAM or get CUDA OOM errors, lower `batch`.
+- For best performance, set `workers` to about half the number of CPU cores, but not more than 8.
+- If unsure, start with `workers=2` and `batch=8`.
+
+**Example in `train.py`:**
+
+```python
+model.train(
+    ...,
+    batch=8,      # Adjust as per your GPU RAM
+    workers=2,    # Adjust as per your CPU cores and OS
+    ...
+)
+```
+
+**Auto-detect workers in `train.py` (optional):**
+
+```python
+import os
+cpu_cores = os.cpu_count()
+if cpu_cores <= 4:
+    workers = 0
+elif cpu_cores <= 8:
+    workers = 2
+else:
+    workers = 4
+
+model.train(
+    ...,
+    workers=workers,
+    ...
+)
+```
 
 ---
 
 ## 📚 Useful Links
+
 - [Ultralytics YOLO Docs](https://docs.ultralytics.com/)
 - [YOLOv8 GitHub](https://github.com/ultralytics/ultralytics)
 - [Helmet Detection Dataset on Kaggle](https://www.kaggle.com/datasets/andrewmvd/helmet-detection)
@@ -120,4 +152,5 @@ python live_detection.py
 ---
 
 ## 🤝 Contributing
-Found a bug or have an idea? Open an issue or pull request. Happy coding! 
+
+Found a bug or have an idea? Open an issue or pull request. Happy coding!
